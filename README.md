@@ -20,6 +20,9 @@ The view observes LiveData collected in the ViewModel. Api and persistence opera
 Implemented some unit tests to test ViewModel & App Database.
 
 
+![Screenshot](mvvm.png)
+
+
 #### Used language and libraries
 * **[Kotlin]**- Primary project language
 * **[Android Architecture Components]** - **MVVM** pattern
