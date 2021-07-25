@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AndroidCodingChallenge</string>
+    <string name="albums">Albums</string>
+    <string name="no_albums_to_show">No Albums to show</string>
+</resources>
