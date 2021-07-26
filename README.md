@@ -41,3 +41,7 @@ Implemented some unit tests to test ViewModel & App Database.
 * Add more details about the album for ex. showing photos inside a Album with the information of the user who posted the album.
 * Add Pagination to list of Albums so that all albums don’t load at the same time. Maximum 20 Albums should load at once and when the user scrolls, the next set of 20 albums loads and so on.
 
+
+#### How to install
+
+Please use debug build variant to install app.
