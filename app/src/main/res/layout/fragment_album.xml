@@ -6,13 +6,12 @@
     android:layout_height="match_parent"
     android:id="@+id/root_layout"
     android:background="@color/white"
-    tools:context=".ui.view.AlbumsActivity">
+    tools:context=".ui.view.AlbumsFragment">
 
     <RelativeLayout
         android:id="@+id/top_header_rl"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dim_50"
-        android:background="@color/color_ececec"
         android:elevation="@dimen/dim_6"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -27,6 +26,12 @@
             android:text="@string/albums"
             android:textColor="@android:color/black"
             android:textSize="@dimen/sp_17" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dim_1"
+            android:layout_alignParentBottom="true"
+            android:background="@color/color_ececec"/>
 
     </RelativeLayout>
 

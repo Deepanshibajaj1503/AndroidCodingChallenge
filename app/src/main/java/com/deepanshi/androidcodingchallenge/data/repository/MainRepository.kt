@@ -15,6 +15,10 @@ class MainRepository(private val apiHelper: ApiHelper, private val albumDao: Alb
         return apiHelper.getAlbums()
     }
 
+   suspend fun getAlbumDetail(albumId:Int): Album {
+        return apiHelper.getAlbumDetail(albumId)
+    }
+
     suspend fun saveAlbumsInDB(entityList: List<Album>) {
         withContext(Dispatchers.IO) {
             albumDao.saveAlbums(entityList)

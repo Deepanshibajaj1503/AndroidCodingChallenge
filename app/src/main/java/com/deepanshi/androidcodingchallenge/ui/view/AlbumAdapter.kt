@@ -9,13 +9,16 @@ import com.deepanshi.androidcodingchallenge.data.model.Album
 import kotlinx.android.synthetic.main.item_album.view.*
 
 
-class AlbumAdapter(private val albums: ArrayList<Album>) : RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>() {
+class AlbumAdapter(private val albums: ArrayList<Album>,private val onItemClicked: (albumId: Int) -> Unit) : RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder>() {
 
-    class AlbumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class AlbumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bind(album: Album) {
             itemView.apply {
                 title.text = album.title
+                container.setOnClickListener {
+                    onItemClicked(album.id)
+                }
             }
         }
     }

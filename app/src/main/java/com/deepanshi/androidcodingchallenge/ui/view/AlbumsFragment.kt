@@ -1,37 +1,43 @@
 package com.deepanshi.androidcodingchallenge.ui.view
 
-import android.net.ConnectivityManager
-import android.net.Network
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
+import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.deepanshi.androidcodingchallenge.AndroidCodingChallengeApplication
 import com.deepanshi.androidcodingchallenge.R
 import com.deepanshi.androidcodingchallenge.data.api.ApiHelper
 import com.deepanshi.androidcodingchallenge.data.api.RetrofitBuilder
 import com.deepanshi.androidcodingchallenge.data.model.Album
+import com.deepanshi.androidcodingchallenge.ui.base.BaseFragment
 import com.deepanshi.androidcodingchallenge.ui.base.ViewModelFactory
 import com.deepanshi.androidcodingchallenge.ui.viewmodel.AlbumViewModel
-import com.deepanshi.androidcodingchallenge.utils.NetworkConnectivityUtils
 import com.deepanshi.androidcodingchallenge.utils.Status
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_album.*
+import kotlinx.android.synthetic.main.fragment_album.*
 
-class AlbumsActivity : AppCompatActivity() {
+class AlbumsFragment : BaseFragment() {
 
-    private val TAG = AlbumsActivity::class.java.simpleName
+    private val TAG = AlbumsFragment::class.java.simpleName
     private var viewModel: AlbumViewModel? = null
     private var adapter: AlbumAdapter? = null
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_album, container, false)
+    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_album)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setupViewModel()
         setupUI()
@@ -39,24 +45,36 @@ class AlbumsActivity : AppCompatActivity() {
         callAlbumsApi()
     }
 
+
     private fun setupViewModel() {
         viewModel = ViewModelProvider(
             this,
-            ViewModelFactory(ApiHelper(RetrofitBuilder.apiService), this.application)
+            ViewModelFactory(ApiHelper(RetrofitBuilder.apiService), requireActivity().application)
         )
             .get(AlbumViewModel::class.java)
     }
 
     private fun setupUI() {
-        adapter = AlbumAdapter(arrayListOf())
+        adapter = AlbumAdapter(arrayListOf()) { albumId ->
+            onAlbumClicked(albumId)
+        }
         album_rv.adapter = adapter
+    }
+
+    private fun onAlbumClicked(albumId: Int) {
+        val bundle = Bundle()
+        bundle.putInt("album_id", albumId)
+
+        val navController =
+            activity?.let { Navigation.findNavController(it, R.id.nav_host_fragment) }
+        navController?.navigate(R.id.action_albumListFragment_to_albumDetailFragment, bundle)
     }
 
     /**
      * Observe data
      */
     private fun setupObservers() {
-        viewModel?.getAlbums()?.observe(this, Observer {
+        viewModel?.getAlbums()?.observe(viewLifecycleOwner, Observer {
             it?.let { resource ->
                 when (resource.status) {
                     Status.SUCCESS -> {
@@ -96,38 +114,23 @@ class AlbumsActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * handles internet connection and refresh data when internet is connected
-     */
-    private val mNetworkCallback = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) {
-            Log.d(TAG, "Network connected!")
-            Handler(Looper.getMainLooper()).post {
-                viewModel?.fetchAlbumsFromServer()
-            }
-        }
-
-        override fun onLost(network: Network) {
-            Log.d(TAG, "Network Lost!")
-            Handler(Looper.getMainLooper()).post {
-                viewModel?.getAlbumsFromLocalDatabase()
-            }
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        NetworkConnectivityUtils.unRegisterConnectivityCallback(mNetworkCallback)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        NetworkConnectivityUtils.registerConnectivityCallback(mNetworkCallback)
-    }
-
     private fun showErrorMessage(message: String?) {
         message?.let {
             Snackbar.make(root_layout as View, it, Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onNetworkAvailable() {
+        super.onNetworkAvailable()
+        Handler(Looper.getMainLooper()).post {
+            viewModel?.fetchAlbumsFromServer()
+        }
+    }
+
+    override fun onNetworkLost() {
+        super.onNetworkLost()
+        Handler(Looper.getMainLooper()).post {
+            viewModel?.getAlbumsFromLocalDatabase()
         }
     }
 
